@@ -287,8 +287,8 @@ void Detector::Preprocess(const cv::Mat& img,
   ros::init(argc, argv, "ssd_detect");
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
-  image_transport::Subscriber sub = it.subscribe("/flytpod/flytcam/image_raw", 1, imageCallback);
-  image_transport::Publisher image_pub = it.advertise("/flytpod/flytcam/detected_objects", 1);
+  image_transport::Subscriber sub = it.subscribe("/flytos/flytcam/image_raw", 1, imageCallback);
+  image_transport::Publisher image_pub = it.advertise("/flytos/flytcam/detected_objects", 1);
   ros::AsyncSpinner spinner(2); // Use 4 threads
   spinner.start();
 
@@ -322,7 +322,7 @@ void Detector::Preprocess(const cv::Mat& img,
 
   while(!new_img_ptr && ros::ok())
  {
-  ROS_INFO("Waiting for data on /flytpod/usb_cam/image_raw topic");
+  ROS_INFO("Waiting for data on /flytos/usb_cam/image_raw topic");
   sleep(1);
  }
 
