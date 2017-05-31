@@ -328,7 +328,7 @@ void Detector::Preprocess(const cv::Mat& img,
 
   while(!new_img_ptr && ros::ok())
  {
-  ROS_INFO("Waiting for data on /"+global_namespace+"/usb_cam/image_raw topic");
+  ROS_INFO("Waiting for data on /%s/usb_cam/image_raw topic",global_namespace.c_str());
   sleep(1);
  }
 
