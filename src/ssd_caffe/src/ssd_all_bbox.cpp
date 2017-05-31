@@ -29,6 +29,8 @@
 #include <cstdio>
 #include <ctime>
 #include <sstream>
+#include <ssd_caffe/ObjectInfo.h>   //custom msg
+#include <ssd_caffe/Detections.h>   //custom msg
 using namespace caffe;  // NOLINT(build/namespaces)
 
 std::string class_labels[] = {"__background__","Aeroplane","Bicycle","Bird","Boat","Bottle", "Bus", "Car", "Cat", "Chair","Cow", "Diningtable", "Dog", "Horse","Motorbike", "Person", "Foliage","Sheep", "Sofa", "Train", "Tvmonitor"};
@@ -286,9 +288,13 @@ void Detector::Preprocess(const cv::Mat& img,
 
   ros::init(argc, argv, "ssd_detect");
   ros::NodeHandle nh;
+
+  std::string global_namespace;
+  ros::param::get("/global_namespace",global_namespace);
+
   image_transport::ImageTransport it(nh);
-  image_transport::Subscriber sub = it.subscribe("/flytos/flytcam/image_raw", 1, imageCallback);
-  image_transport::Publisher image_pub = it.advertise("/flytos/flytcam/detected_objects", 1);
+  image_transport::Subscriber sub = it.subscribe("/"+global_namespace+"/flytcam/image_raw", 1, imageCallback);
+  image_transport::Publisher image_pub = it.advertise("/"+global_namespace+"/flytcam/detected_objects", 1);
   ros::AsyncSpinner spinner(2); // Use 4 threads
   spinner.start();
 
@@ -322,7 +328,7 @@ void Detector::Preprocess(const cv::Mat& img,
 
   while(!new_img_ptr && ros::ok())
  {
-  ROS_INFO("Waiting for data on /flytos/usb_cam/image_raw topic");
+  ROS_INFO("Waiting for data on /"+global_namespace+"/usb_cam/image_raw topic");
   sleep(1);
  }
 

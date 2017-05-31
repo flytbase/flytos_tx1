@@ -16,6 +16,12 @@ set(CAFFE_LINK_LIBRARY caffe/lib /usr/local/cuda/lib64)
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(OpenCV REQUIRED)
 
+add_message_files(
+   FILES
+   ObjectInfo.msg
+   Detections.msg
+)
+
  generate_messages(
    DEPENDENCIES
    std_msgs
