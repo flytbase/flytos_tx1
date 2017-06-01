@@ -29,8 +29,7 @@
 #include <cstdio>
 #include <ctime>
 #include <sstream>
-#include <ssd_caffe/ObjectInfo.h>   //custom msg
-#include <ssd_caffe/Detections.h>   //custom msg
+
 using namespace caffe;  // NOLINT(build/namespaces)
 
 std::string class_labels[] = {"__background__","Aeroplane","Bicycle","Bird","Boat","Bottle", "Bus", "Car", "Cat", "Chair","Cow", "Diningtable", "Dog", "Horse","Motorbike", "Person", "Foliage","Sheep", "Sofa", "Train", "Tvmonitor"};
@@ -334,11 +333,9 @@ void Detector::Preprocess(const cv::Mat& img,
 
   while (ros::ok()) 
   {
-      ssd_caffe::Detections detections_msg;
-      //current_img_header = new_img_header;
-      detections_msg.header = new_img_header;
+
       cv::Mat img_uncropped = new_img_ptr->image;
-	    cv::Mat img = img_uncropped(cv::Rect((int(img_uncropped.cols - img_uncropped.rows)/2),0,img_uncropped.rows,img_uncropped.rows));
+      cv::Mat img = img_uncropped(cv::Rect((int(img_uncropped.cols - img_uncropped.rows)/2),0,img_uncropped.rows,img_uncropped.rows));
       std::vector<vector<float> > detections = detector.Detect(img);
 
       for (int i = 0; i < detections.size(); ++i) 
@@ -347,6 +344,12 @@ void Detector::Preprocess(const cv::Mat& img,
         // Detection format: [image_id, label, score, xmin, ymin, xmax, ymax].
         CHECK_EQ(d.size(), 7);   
         const float score = d[2];
+        float d3=d[3], d4=d[4], d5=d[5], d6=d[6];
+        if(d3<0){d3=0;}else if(d3>1){d3=1;}
+        if(d4<0){d4=0;}else if(d4>1){d4=1;}
+        if(d5<0){d5=0;}else if(d5>1){d5=1;}
+        if(d6<0){d6=0;}else if(d6>1){d6=1;}
+
         if (score >= confidence_threshold) 
         {
         	//print the bbox and label text on the img
@@ -356,12 +359,12 @@ void Detector::Preprocess(const cv::Mat& img,
           ostr_c << (score * 100);
           std::string confidence_text = ostr_c.str() + "%";
           
-          cv::Mat roi = img(cv::Rect(static_cast<int>(d[3] * img.cols), static_cast<int>(d[4] * img.rows), static_cast<int>((d[5]-d[3]) * img.cols) ,static_cast<int>((d[6]-d[4]) * img.rows) ));
+          cv::Mat roi = img(cv::Rect(static_cast<int>(d3 * img.cols), static_cast<int>(d4 * img.rows), static_cast<int>((d5-d3) * img.cols) ,static_cast<int>((d6-d4) * img.rows) ));
           cv::Mat color(roi.size(), CV_8UC3, cv::Scalar(255, 0, 0)); 
           
           cv::addWeighted(color, 0.5, roi, 0.5 , 0.0, roi);
-        	cv::putText(img,class_labels[int(d[1])],cv::Point(static_cast<int>(d[3] * img.cols),static_cast<int>(d[4] * img.rows) +25), cv::FONT_HERSHEY_TRIPLEX,0.8,white,1,8);
-          cv::putText(img,confidence_text,cv::Point(static_cast<int>(d[3] * img.cols),static_cast<int>(d[4] * img.rows) +50), cv::FONT_HERSHEY_TRIPLEX,0.8,white,1,8);
+          cv::putText(img,class_labels[int(d[1])],cv::Point(static_cast<int>(d3 * img.cols),static_cast<int>(d4 * img.rows) +25), cv::FONT_HERSHEY_TRIPLEX,0.8,white,1,8);
+          cv::putText(img,confidence_text,cv::Point(static_cast<int>(d3 * img.cols),static_cast<int>(d4 * img.rows) +50), cv::FONT_HERSHEY_TRIPLEX,0.8,white,1,8);
         }
       }
       sensor_msgs::ImagePtr pub_msg = cv_bridge::CvImage(std_msgs::Header(),"bgr8", img).toImageMsg();
